@@ -1,0 +1,16 @@
+# 便携 Python 环境（体积大，换 CPU/CUDA 单独维护）
+runtime/
+
+# 用户数据与训练产物
+data_store/
+
+screener/output/
+screener/model/_predict_tmp/
+
+__pycache__/
+*.py[cod]
+*.log
+
+# 本机路径
+portable_config.json
+screener/config.json
