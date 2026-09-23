@@ -7,6 +7,7 @@ import pickle
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -19,17 +20,18 @@ def load_meta(model_dir: Path) -> dict:
 
 
 def booster_path(model_dir: Path, ascii_fallback: str) -> str:
-    """返回 LightGBM 可读取的 ASCII 模型路径，必要时从 model_dir 复制。"""
-    fb = Path(ascii_fallback or (model_dir.parent.parent / "data_store" / "lgb" / "lgbm_full.txt"))
-    if not fb.is_absolute():
-        fb = (model_dir.parent.parent / fb).resolve()
+    """返回 LightGBM 可读取的 ASCII 模型路径，避免 Windows 中文路径读模型失败。"""
+    source = Path(ascii_fallback) if ascii_fallback else model_dir / "lgbm_full.txt"
+    if not source.is_absolute():
+        source = (model_dir.parent.parent / source).resolve()
+    if not source.is_file():
+        source = model_dir / "lgbm_full.txt"
+    if not source.is_file():
+        raise SystemExit(f"缺少模型文件 {source}")
+    fb = Path(tempfile.gettempdir()) / "temu_resnet_lgb" / "lgbm_full.txt"
     fb.parent.mkdir(parents=True, exist_ok=True)
-    p = model_dir / "lgbm_full.txt"
-    if p.is_file():
-        if not fb.is_file() or fb.stat().st_mtime < p.stat().st_mtime:
-            shutil.copy2(p, fb)
-    if not fb.is_file():
-        raise SystemExit(f"缺少模型文件 {fb}")
+    if not fb.is_file() or fb.stat().st_mtime < source.stat().st_mtime or fb.stat().st_size != source.stat().st_size:
+        shutil.copy2(source, fb)
     return str(fb)
 
 

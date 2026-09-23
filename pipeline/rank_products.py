@@ -12,6 +12,7 @@ import pickle
 import re
 import shutil
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -827,6 +828,16 @@ def concat_features(
     return pd.concat(parts, axis=1)
 
 
+def lightgbm_safe_model_path(path: str) -> str:
+    """把 init_model 复制到 ASCII 临时路径，避开 Windows 中文路径加载失败。"""
+    source = Path(path)
+    target = Path(tempfile.gettempdir()) / "temu_resnet_lgb" / "init_model.txt"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if not target.is_file() or target.stat().st_mtime < source.stat().st_mtime or target.stat().st_size != source.stat().st_size:
+        shutil.copy2(source, target)
+    return str(target)
+
+
 def fit_lgbm(X_tr: pd.DataFrame, y_tr, X_va: pd.DataFrame, y_va) -> LGBMRegressor:
     """拟合 LightGBM；DATTA_INIT_MODEL 指向已有 booster 时做 continue。"""
     cat_features = [c for c in X_tr.columns if c in CAT_COLS]
@@ -838,8 +849,9 @@ def fit_lgbm(X_tr: pd.DataFrame, y_tr, X_va: pd.DataFrame, y_va) -> LGBMRegresso
         callbacks=[lgb.early_stopping(100, verbose=False)],
     )
     if init_path and Path(init_path).is_file():
-        print(f"[train] warm start init_model={init_path}")
-        fit_kw["init_model"] = init_path
+        safe_init = lightgbm_safe_model_path(init_path)
+        print(f"[train] warm start init_model={safe_init}")
+        fit_kw["init_model"] = safe_init
     model.fit(X_tr, y_tr, **fit_kw)
     return model
 

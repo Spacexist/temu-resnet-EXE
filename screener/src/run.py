@@ -199,6 +199,17 @@ def main() -> None:
         )
         t_txt = time.perf_counter() - t0
 
+    vectors_cached = False
+    if npz_dir:
+        ids_list = df["商品ID"].astype(str).tolist()
+        merge_vectors_npz(npz_dir / "img.npz", ids_list, X_img)
+        merge_vectors_npz(npz_dir / "txt.npz", ids_list, X_txt)
+        vectors_cached = True
+        print(
+            f"[embed] 向量已写入 {npz_dir}（后续失败重试也会复用）",
+            flush=True,
+        )
+
     te = load_te(model_dir)
     df = apply_inference_source(
         df, cfg.get("inference_source") or meta.get("inference_source_fixed", "")
@@ -259,13 +270,11 @@ def main() -> None:
         X=X_img.astype(np.float32),
     )
     if npz_dir:
-        ids_list = df["商品ID"].astype(str).tolist()
-        merge_vectors_npz(npz_dir / "img.npz", ids_list, X_img)
-        merge_vectors_npz(npz_dir / "txt.npz", ids_list, X_txt)
-        print(
-            f"[embed] 向量已写入 {npz_dir}（增量训练将复用，不再重复 ResNet/BGE）",
-            flush=True,
-        )
+        if not vectors_cached:
+            ids_list = df["商品ID"].astype(str).tolist()
+            merge_vectors_npz(npz_dir / "img.npz", ids_list, X_img)
+            merge_vectors_npz(npz_dir / "txt.npz", ids_list, X_txt)
+        print(f"[embed] 向量缓存已确认 {npz_dir}", flush=True)
 
     print(
         f"[run] 耗时 读表{t_read:.1f}s 下载{t_dl:.1f}s 图{t_img:.1f}s 文{t_txt:.1f}s "
