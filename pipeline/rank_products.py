@@ -54,6 +54,8 @@ ART = _env_path("DATTA_ART", PROJECT_ROOT / "artifacts")
 NPZ_DIR = _env_path("DATTA_NPZ", _ASCII / "npz")
 IMG_DIR = _env_path("DATTA_IMG", PROJECT_ROOT / "data_store" / "image_cache")
 BGE_CACHES = (
+    PROJECT_ROOT / "env" / "hf-cache" / "models--BAAI--bge-small-zh-v1.5",
+    PROJECT_ROOT / "env" / "hf-cache" / "hub" / "models--BAAI--bge-small-zh-v1.5",
     PROJECT_ROOT / "runtime" / "hf-cache" / "models--BAAI--bge-small-zh-v1.5",
     PROJECT_ROOT / "runtime" / "hf-cache" / "hub" / "models--BAAI--bge-small-zh-v1.5",
 )

@@ -22,6 +22,8 @@ from torchvision import models
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 BGE_CACHES = (
+    PROJECT_ROOT / "env" / "hf-cache" / "models--BAAI--bge-small-zh-v1.5",
+    PROJECT_ROOT / "env" / "hf-cache" / "hub" / "models--BAAI--bge-small-zh-v1.5",
     PROJECT_ROOT / "runtime" / "hf-cache" / "models--BAAI--bge-small-zh-v1.5",
     PROJECT_ROOT / "runtime" / "hf-cache" / "hub" / "models--BAAI--bge-small-zh-v1.5",
 )

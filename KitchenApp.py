@@ -65,8 +65,9 @@ def resolve_data_store(raw: str) -> Path:
 
 
 def runtime_python() -> str:
-    """优先使用随包 runtime，缺失时回退到当前 Python。"""
+    """优先使用项目 env/runtime，缺失时回退到当前 Python。"""
     for rel in (
+        ROOT / "env" / "python.exe",
         ROOT / "runtime" / "base-python" / "python.exe",
         ROOT / "runtime" / "base-python" / "Scripts" / "python.exe",
     ):
@@ -607,7 +608,8 @@ class KitchenApp:
         """构造子进程环境，强制 pipeline 使用当前数据目录。"""
         env = os.environ.copy()
         env["KITCHEN_DATA_STORE"] = str(self.data_store)
-        env["HF_HOME"] = str(ROOT / "runtime" / "hf-cache")
+        env["HF_HOME"] = str(ROOT / "env" / "hf-cache")
+        env["TORCH_HOME"] = str(ROOT / "env" / "torch-cache")
         env["HF_HUB_OFFLINE"] = "1"
         env["TRANSFORMERS_OFFLINE"] = "1"
         env["PYTHONIOENCODING"] = "utf-8"

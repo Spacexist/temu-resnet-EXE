@@ -1,5 +1,6 @@
 # 便携 Python 环境（体积大，换 CPU/CUDA 单独维护）
 runtime/
+env/
 
 # 用户数据与训练产物
 data_store/

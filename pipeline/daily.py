@@ -32,14 +32,18 @@ CACHE_JSON = DATA_STORE / "cache.json"
 IMG_DIR = DATA_STORE / "image_cache"
 WORDS = ROOT / "words" / "banned.txt"
 EXCLUDE_L2 = ROOT / "words" / "exclude_l2.txt"
-PY = ROOT / "runtime" / "base-python" / "python.exe"
+ENV_PY = ROOT / "env" / "python.exe"
+RUNTIME_PY = ROOT / "runtime" / "base-python" / "python.exe"
 ASCII_ROOT = DATA_STORE
 TABLE_SUFFIXES = {".csv", ".xlsx", ".xls"}
 
 
 def py_bin() -> str:
-    """优先使用便携包 runtime，缺失时回退到当前 Python。"""
-    return str(PY) if PY.is_file() else sys.executable
+    """优先使用项目 env/runtime，缺失时回退到当前 Python。"""
+    for py in (ENV_PY, RUNTIME_PY):
+        if py.is_file():
+            return str(py)
+    return sys.executable
 
 
 def day_id(path: Path, now: datetime | None = None) -> str:
@@ -67,7 +71,8 @@ def child_env(extra: dict[str, str] | None = None) -> dict[str, str]:
     env["DATTA_TRAIN_FULL_ONLY"] = "1"
     env["KITCHEN_ASCII"] = str(ASCII_ROOT)
     env["DATTA_IMG"] = str(IMG_DIR)
-    env["HF_HOME"] = str(ROOT / "runtime" / "hf-cache")
+    env["HF_HOME"] = str(ROOT / "env" / "hf-cache")
+    env["TORCH_HOME"] = str(ROOT / "env" / "torch-cache")
     env["HF_HUB_OFFLINE"] = "1"
     env["TRANSFORMERS_OFFLINE"] = "1"
     env.setdefault("OMP_NUM_THREADS", "1")
