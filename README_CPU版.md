@@ -19,3 +19,13 @@
 runtime\base-python\Scripts\python.exe -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 runtime\base-python\Scripts\python.exe -m pip install -r screener\requirements.txt scikit-learn
 ```
+
+## 未附带 runtime 时
+
+`模型训练.bat` 会回退使用 `py -3`。首次启动前，为同一个 Python 安装依赖：
+
+```bat
+py -3 -m pip install -r screener\requirements.txt scikit-learn
+```
+
+这会安装清洗所需的 `zhconv` 和训练所需的 `lightgbm`。
